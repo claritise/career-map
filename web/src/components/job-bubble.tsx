@@ -10,8 +10,7 @@ export type { JobBubbleNode };
 const TRANSITION = `${TRANSITION_MS}ms ${EASE_OUT}`;
 
 export function JobBubble({ data }: NodeProps<JobBubbleNode>) {
-  const { title, radius, brightness, dimmed, selected, showAnchorLabel, tint } =
-    data;
+  const { title, radius, brightness, dimmed, selected, tint } = data;
   const size = radius * 2;
 
   // Color-mix lets us scale the tint by `brightness` without parsing rgb(...)
@@ -21,20 +20,20 @@ export function JobBubble({ data }: NodeProps<JobBubbleNode>) {
   )}%, transparent)`;
 
   // Selection ring uses the saturated cluster color so the chosen bubble
-  // gets a definitive identity, not generic cream.
+  // gets a definitive identity.
   const ringColor = selected ? tint.saturated : "transparent";
 
-  // Resting label opacity: selected always visible, anchors faintly visible,
-  // everything else hidden until hover. Hover override is CSS-only.
-  const restingLabelClass = selected
-    ? "opacity-100"
-    : showAnchorLabel
-      ? "opacity-60"
-      : "opacity-0";
+  // Labels: hidden at rest, visible on hover OR when selected. Selected
+  // wins via the `force-label-visible` class set on the wrapper so even
+  // off-hover it stays up.
+  const wrapperClass = clsx(
+    "group relative flex cursor-pointer items-center justify-center",
+    selected && "force-label-visible",
+  );
 
   return (
     <div
-      className="group relative flex cursor-pointer items-center justify-center"
+      className={wrapperClass}
       style={{
         width: size,
         height: size,
@@ -68,19 +67,26 @@ export function JobBubble({ data }: NodeProps<JobBubbleNode>) {
         }}
       />
 
+      {/* Label: hidden by default. .force-label-visible (set when selected) or
+          hover make it appear. Pill background gives clean contrast against
+          the constellation. */}
       <div
-        className={clsx(
-          "pointer-events-none absolute left-1/2 top-full -translate-x-1/2 whitespace-nowrap pt-2 text-[11px] tracking-wide group-hover:opacity-100",
-          restingLabelClass,
-        )}
-        style={{
-          color: tint.saturated,
-          textShadow: "0 1px 8px rgba(0, 0, 0, 0.85)",
-          letterSpacing: "0.02em",
-          transition: `opacity ${TRANSITION}`,
-        }}
+        className="pointer-events-none absolute left-1/2 top-full z-10 -translate-x-1/2 whitespace-nowrap pt-2.5 opacity-0 group-hover:opacity-100 group-[.force-label-visible]:opacity-100"
+        style={{ transition: `opacity ${TRANSITION}` }}
       >
-        {title}
+        <span
+          className="inline-block rounded-full px-2.5 py-1 text-[12px] font-medium"
+          style={{
+            color: tint.saturated,
+            background: "rgba(10, 9, 8, 0.78)",
+            border: `1px solid ${tint.glow}`,
+            backdropFilter: "blur(8px)",
+            letterSpacing: "0.005em",
+            lineHeight: 1,
+          }}
+        >
+          {title}
+        </span>
       </div>
     </div>
   );

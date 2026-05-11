@@ -13,7 +13,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useMemo } from "react";
 import {
   buildNodes,
-  pickAnchorSlugs,
   resolveSelectedSlug,
   type Selection,
 } from "~/lib/build-nodes";
@@ -49,8 +48,6 @@ function ConstellationInner({ atlas, neighbourSlugsBySlug }: ConstellationProps)
     [atlas],
   );
 
-  const anchorSlugs = useMemo(() => pickAnchorSlugs(atlas), [atlas]);
-
   const rawSelectedSlug = readSelectedSlug(pathname);
   const selectedSlug = resolveSelectedSlug(rawSelectedSlug, occupationsBySlug);
 
@@ -65,9 +62,8 @@ function ConstellationInner({ atlas, neighbourSlugsBySlug }: ConstellationProps)
       buildNodes({
         occupations: atlas,
         selection,
-        anchorSlugs,
       }),
-    [atlas, selection, anchorSlugs],
+    [atlas, selection],
   );
 
   const onNodeClick = useCallback<NodeMouseHandler>(
