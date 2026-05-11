@@ -3,4 +3,73 @@
 @theme {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-serif: var(--font-fraunces), ui-serif, Georgia, "Times New Roman",
+    serif;
+
+  /* Background */
+  --color-canvas: #0a0908;
+  --color-canvas-panel: rgba(14, 12, 11, 0.92);
+  --color-canvas-panel-end: rgba(10, 9, 8, 0.96);
+
+  /* Cream — the only on-canvas hue. Steps go from full to faint. */
+  --color-cream: rgba(248, 244, 236, 0.96);
+  --color-cream-strong: rgba(248, 244, 236, 0.94);
+  --color-cream-95: rgba(232, 226, 217, 0.95);
+  --color-cream-86: rgba(232, 226, 217, 0.86);
+  --color-cream-62: rgba(232, 226, 217, 0.62);
+  --color-cream-55: rgba(232, 226, 217, 0.55);
+  --color-cream-50: rgba(232, 226, 217, 0.5);
+  --color-cream-42: rgba(232, 226, 217, 0.42);
+  --color-cream-32: rgba(232, 226, 217, 0.32);
+  --color-cream-25: rgba(232, 226, 217, 0.25);
+  --color-cream-rule: rgba(232, 226, 217, 0.07);
+  --color-cream-rule-faint: rgba(232, 226, 217, 0.05);
+  --color-cream-track: rgba(232, 226, 217, 0.07);
+  --color-cream-glow: rgba(255, 232, 198, 0.45);
+  --color-cream-glow-soft: rgba(255, 210, 160, 0.18);
+  --color-cream-glow-edge: rgba(255, 232, 198, 0.18);
+  --color-cream-rgb: 232, 226, 217;
+
+  /* Wage delta cues */
+  --color-up: rgba(186, 220, 180, 0.78);
+  --color-down: rgba(220, 178, 168, 0.78);
+
+  /* Canvas atmospherics */
+  --gradient-warm-glow: radial-gradient(
+    ellipse 80% 60% at 50% 50%,
+    rgba(255, 230, 200, 0.025) 0%,
+    rgba(0, 0, 0, 0) 60%
+  );
+  --gradient-vignette: radial-gradient(
+    ellipse 100% 100% at 50% 50%,
+    rgba(0, 0, 0, 0) 55%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  --color-dot-grid: rgba(232, 226, 217, 0.06);
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--color-canvas);
+}
+
+::selection {
+  background: rgba(255, 232, 198, 0.22);
+  color: var(--color-cream);
+}
+
+.react-flow__pane {
+  cursor: grab;
+}
+.react-flow__pane:active {
+  cursor: grabbing;
+}
+.react-flow__node {
+  cursor: pointer;
+}
+.react-flow__attribution {
+  display: none !important;
 }
