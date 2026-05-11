@@ -1,0 +1,19 @@
+# Raw O*NET zip + BLS xlsx live here, ~50MB total. Re-downloadable; don't commit.
+data-sources/*
+!data-sources/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.python-version
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Build artifacts (the JSON output lives in ../web/public/data/, committed)
+build/
+dist/
