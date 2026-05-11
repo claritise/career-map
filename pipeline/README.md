@@ -42,11 +42,13 @@ Source files are big (~50MB combined), re-downloadable, and not committed. They 
 2. Download the latest "Text version" (TSV zip). Current version as of this writing: **30.2** (February 2026).
 3. Unzip into `pipeline/data-sources/onet/`. After extraction you should see files like `Skills.txt`, `Knowledge.txt`, `Abilities.txt`, `Occupation Data.txt`, `Job Zones.txt` directly inside that directory.
 
-**BLS Occupational Employment Statistics** (yearly release, free):
+**BLS Occupational Employment and Wage Statistics** (yearly release, free):
 
 1. Visit https://www.bls.gov/oes/oes_dl.htm
-2. Download the most recent national xlsx — file name pattern is `oesm[YY]nat.xlsx` (e.g. `oesm23nat.xlsx` contains 2023 wage estimates, typically published in spring of the following year).
-3. Save to `pipeline/data-sources/oesm_nat.xlsx` (or pass `--bls-xlsx` with the actual filename).
+2. Under the most recent "May YYYY" section, click **National (XLSX)**. The file name pattern is `national_M[YYYY]_dl.xlsx` (e.g. `national_M2024_dl.xlsx` contains May 2024 wage estimates; BLS changed the naming convention from the older `oesmYYnat.xlsx` around 2023).
+3. Save into `pipeline/data-sources/`. The script's default expects `national_M2024_dl.xlsx`; if you have a different year, pass `--bls-xlsx data-sources/national_M2025_dl.xlsx` etc.
+
+The xlsx has multiple sheets — the data is on the first sheet (also named `national_M[YYYY]_dl`); other sheets (`Field Descriptions`, `UpdateTime`, `Filler`) are metadata. The pipeline reads sheet 0 explicitly.
 
 After both downloads:
 
@@ -59,7 +61,7 @@ pipeline/data-sources/
 │   ├── Occupation Data.txt
 │   ├── Job Zones.txt
 │   └── ... (other O*NET files)
-└── oesm_nat.xlsx
+└── national_M2024_dl.xlsx
 ```
 
 ## Running the pipeline
@@ -75,7 +77,7 @@ With explicit paths:
 ```bash
 python build_data.py \
     --onet-dir data-sources/onet \
-    --bls-xlsx data-sources/oesm23nat.xlsx \
+    --bls-xlsx data-sources/national_M2024_dl.xlsx \
     --output-dir ../web/public/data \
     --verbose
 ```
@@ -132,7 +134,7 @@ pipeline/
 
 **`O*NET directory not found`** — check the path; the default expects `pipeline/data-sources/onet/`. Pass `--onet-dir` explicitly if it lives elsewhere.
 
-**`BLS xlsx not found`** — same; default expects `pipeline/data-sources/oesm_nat.xlsx`. Pass `--bls-xlsx /full/path/to/file.xlsx`.
+**`BLS xlsx not found`** — same; default expects `pipeline/data-sources/national_M2024_dl.xlsx`. Pass `--bls-xlsx /full/path/to/file.xlsx`.
 
 **`NotImplementedError: Phase 1: ...`** — Phase 0 stub message. Expected until Phase 1 fills in the step bodies.
 

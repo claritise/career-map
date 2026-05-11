@@ -306,8 +306,11 @@ def parse_args(argv: list[str] | None = None) -> Paths:
     parser.add_argument(
         "--bls-xlsx",
         type=Path,
-        default=here / "data-sources" / "oesm_nat.xlsx",
-        help="Path to the BLS national OES xlsx file.",
+        default=here / "data-sources" / "national_M2024_dl.xlsx",
+        help=(
+            "Path to the BLS national OEWS xlsx file (e.g. national_M2024_dl.xlsx). "
+            "Data lives on the first sheet; other sheets are metadata."
+        ),
     )
     parser.add_argument(
         "--output-dir",
