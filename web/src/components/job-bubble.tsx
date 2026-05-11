@@ -10,21 +10,31 @@ export type { JobBubbleNode };
 const TRANSITION = `${TRANSITION_MS}ms ${EASE_OUT}`;
 
 export function JobBubble({ data }: NodeProps<JobBubbleNode>) {
-  const { title, radius, brightness, dimmed, selected, showAnchorLabel } = data;
+  const { title, radius, brightness, dimmed, selected, showAnchorLabel, tint } =
+    data;
   const size = radius * 2;
-  const cream = `rgba(var(--color-cream-rgb), ${brightness})`;
+
+  // Color-mix lets us scale the tint by `brightness` without parsing rgb(...)
+  // strings. `transparent` is the alpha-zero anchor.
+  const fill = `color-mix(in oklab, ${tint.resting} ${Math.round(
+    brightness * 100,
+  )}%, transparent)`;
+
+  // Selection ring uses the saturated cluster color so the chosen bubble
+  // gets a definitive identity, not generic cream.
+  const ringColor = selected ? tint.saturated : "transparent";
 
   // Resting label opacity: selected always visible, anchors faintly visible,
   // everything else hidden until hover. Hover override is CSS-only.
   const restingLabelClass = selected
     ? "opacity-100"
     : showAnchorLabel
-      ? "opacity-50"
+      ? "opacity-60"
       : "opacity-0";
 
   return (
     <div
-      className="group relative flex items-center justify-center"
+      className="group relative flex cursor-pointer items-center justify-center"
       style={{
         width: size,
         height: size,
@@ -40,10 +50,10 @@ export function JobBubble({ data }: NodeProps<JobBubbleNode>) {
         style={{
           width: size,
           height: size,
-          background: cream,
+          background: fill,
           boxShadow: selected
-            ? "0 0 0 1.5px var(--color-cream-95), 0 0 22px 4px var(--color-cream-glow), 0 0 48px 12px var(--color-cream-glow-soft)"
-            : "0 0 0 1px rgba(var(--color-cream-rgb), 0.04)",
+            ? `0 0 0 1.5px ${ringColor}, 0 0 22px 5px ${tint.glow}, 0 0 56px 14px ${tint.glow}`
+            : `0 0 0 1px rgba(var(--color-cream-rgb), 0.04)`,
           transition: `transform ${TRANSITION}, box-shadow ${TRANSITION}, background ${TRANSITION_MS}ms ease`,
         }}
       />
@@ -53,8 +63,7 @@ export function JobBubble({ data }: NodeProps<JobBubbleNode>) {
         style={{
           width: size,
           height: size,
-          boxShadow:
-            "0 0 18px 3px var(--color-cream-glow), 0 0 36px 10px var(--color-cream-glow-soft)",
+          boxShadow: `0 0 18px 4px ${tint.glow}, 0 0 40px 12px ${tint.glow}`,
           transition: `opacity ${TRANSITION}`,
         }}
       />
@@ -65,7 +74,7 @@ export function JobBubble({ data }: NodeProps<JobBubbleNode>) {
           restingLabelClass,
         )}
         style={{
-          color: "var(--color-cream-86)",
+          color: tint.saturated,
           textShadow: "0 1px 8px rgba(0, 0, 0, 0.85)",
           letterSpacing: "0.02em",
           transition: `opacity ${TRANSITION}`,

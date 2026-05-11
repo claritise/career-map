@@ -57,6 +57,12 @@ export type JobBubbleData = {
   dimmed: boolean;
   selected: boolean;
   showAnchorLabel: boolean;
+  /** Cluster-derived color. Same hue at three intensities. */
+  tint: {
+    saturated: string;
+    resting: string;
+    glow: string;
+  };
 };
 
 export type JobBubbleNode = Node<JobBubbleData, "jobBubble">;

@@ -23,27 +23,66 @@ function occ(slug: string, overrides: Partial<Occupation> = {}): Occupation {
 }
 
 describe("pickAnchorSlugs", () => {
-  it("returns the first N slugs in input order", () => {
-    const occs = [occ("a"), occ("b"), occ("c"), occ("d")];
-    const anchors = pickAnchorSlugs(occs, 2);
-    expect(anchors.has("a")).toBe(true);
-    expect(anchors.has("b")).toBe(true);
-    expect(anchors.has("c")).toBe(false);
-    expect(anchors.has("d")).toBe(false);
+  it("picks one anchor per cluster (the member closest to centroid)", () => {
+    // Two clusters of 4 each, placed far apart.
+    const occs = [
+      // Cluster 0: centroid is (120,120), so a3 wins.
+      occ("a1", { clusterId: 0, x: 100, y: 100 }),
+      occ("a2", { clusterId: 0, x: 110, y: 110 }),
+      occ("a3", { clusterId: 0, x: 120, y: 120 }),
+      occ("a4", { clusterId: 0, x: 150, y: 150 }),
+      // Cluster 1: centroid is (840,840), so b3 wins.
+      occ("b1", { clusterId: 1, x: 800, y: 800 }),
+      occ("b2", { clusterId: 1, x: 810, y: 810 }),
+      occ("b3", { clusterId: 1, x: 850, y: 850 }),
+      occ("b4", { clusterId: 1, x: 900, y: 900 }),
+    ];
+    const anchors = pickAnchorSlugs(occs);
     expect(anchors.size).toBe(2);
+    expect(anchors.has("a3")).toBe(true);
+    expect(anchors.has("b3")).toBe(true);
+  });
+
+  it("excludes the noise cluster (-1)", () => {
+    const occs = [
+      occ("real-1", { clusterId: 0, x: 100, y: 100 }),
+      occ("real-2", { clusterId: 0, x: 110, y: 110 }),
+      occ("real-3", { clusterId: 0, x: 120, y: 120 }),
+      occ("real-4", { clusterId: 0, x: 130, y: 130 }),
+      occ("noise-1", { clusterId: -1, x: 500, y: 500 }),
+      occ("noise-2", { clusterId: -1, x: 510, y: 510 }),
+      occ("noise-3", { clusterId: -1, x: 520, y: 520 }),
+      occ("noise-4", { clusterId: -1, x: 530, y: 530 }),
+    ];
+    const anchors = pickAnchorSlugs(occs);
+    expect(anchors.size).toBe(1);
+    expect([...anchors].some((s) => s.startsWith("noise"))).toBe(false);
+  });
+
+  it("skips clusters smaller than 4 members", () => {
+    const occs = [
+      occ("big-1", { clusterId: 0, x: 100, y: 100 }),
+      occ("big-2", { clusterId: 0, x: 110, y: 110 }),
+      occ("big-3", { clusterId: 0, x: 120, y: 120 }),
+      occ("big-4", { clusterId: 0, x: 130, y: 130 }),
+      occ("small-1", { clusterId: 1, x: 500, y: 500 }),
+      occ("small-2", { clusterId: 1, x: 510, y: 510 }),
+    ];
+    const anchors = pickAnchorSlugs(occs);
+    expect(anchors.size).toBe(1);
+    expect([...anchors].some((s) => s.startsWith("small"))).toBe(false);
   });
 
   it("does not mutate the input array", () => {
-    const occs = [occ("a"), occ("b")];
+    const occs = [
+      occ("a", { clusterId: 0 }),
+      occ("b", { clusterId: 0 }),
+      occ("c", { clusterId: 0 }),
+      occ("d", { clusterId: 0 }),
+    ];
     const before = occs.map((o) => o.slug);
-    pickAnchorSlugs(occs, 2);
+    pickAnchorSlugs(occs);
     expect(occs.map((o) => o.slug)).toEqual(before);
-  });
-
-  it("returns at most occupations.length slugs when count exceeds the dataset", () => {
-    const occs = [occ("a"), occ("b")];
-    const anchors = pickAnchorSlugs(occs, 99);
-    expect(anchors.size).toBe(2);
   });
 });
 
@@ -152,6 +191,19 @@ describe("buildNodes — selection / dim invariants", () => {
     for (const n of nodes) {
       expect(n.data.radius).toBe(BUBBLE_RADIUS);
       expect(n.data.brightness).toBe(BUBBLE_BRIGHTNESS);
+    }
+  });
+
+  it("every node carries a tint (saturated / resting / glow strings)", () => {
+    const nodes = buildNodes({
+      occupations: occs,
+      selection: null,
+      anchorSlugs: anchors,
+    });
+    for (const n of nodes) {
+      expect(typeof n.data.tint.saturated).toBe("string");
+      expect(typeof n.data.tint.resting).toBe("string");
+      expect(typeof n.data.tint.glow).toBe("string");
     }
   });
 
