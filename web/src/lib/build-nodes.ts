@@ -1,14 +1,13 @@
 import { ANCHOR_COUNT, BUBBLE_BRIGHTNESS, BUBBLE_RADIUS } from "./constants";
-import type { JobBubbleNode, Occupation, OccupationLayout } from "./types";
+import type { JobBubbleNode, Occupation } from "./types";
 
 export function pickAnchorSlugs(
   occupations: Occupation[],
   count: number = ANCHOR_COUNT,
 ): Set<string> {
-  // Anchor labels are shown on the first N occupations in the dataset. With
-  // uniform bubble sizing there's no "biggest" anchor anymore — order-based
-  // selection keeps the choice deterministic and v1-friendly (real datasets
-  // can pre-sort by editorial priority).
+  // Anchor labels are shown on the first N occupations in the dataset.
+  // Real-data ordering is whatever the pipeline emits (currently sorted by
+  // cluster id); v1 polish can curate editorial anchors via a separate file.
   return new Set(occupations.slice(0, count).map((o) => o.slug));
 }
 
@@ -32,19 +31,16 @@ export type Selection = {
 
 export type BuildNodesArgs = {
   occupations: Occupation[];
-  layoutBySlug: Record<string, OccupationLayout>;
   selection: Selection | null;
   anchorSlugs: Set<string>;
 };
 
 export function buildNodes({
   occupations,
-  layoutBySlug,
   selection,
   anchorSlugs,
 }: BuildNodesArgs): JobBubbleNode[] {
   return occupations.map((o) => {
-    const layout = layoutBySlug[o.slug];
     const isSelected = selection?.slug === o.slug;
     const dimmed =
       selection !== null &&
@@ -54,7 +50,7 @@ export function buildNodes({
     return {
       id: o.slug,
       type: "jobBubble",
-      position: { x: layout?.x ?? 0, y: layout?.y ?? 0 },
+      position: { x: o.x, y: o.y },
       draggable: false,
       selectable: true,
       data: {

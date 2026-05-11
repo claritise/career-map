@@ -1,0 +1,35 @@
+[
+  {
+    "soc": "15-1243.00",
+    "slug": "database-architects",
+    "title": "Database Architects",
+    "x": 745.3599853515625,
+    "y": 900.510009765625,
+    "wage": 135980,
+    "employment": 64770,
+    "jobZone": 4,
+    "clusterId": 1
+  },
+  {
+    "soc": "15-1252.00",
+    "slug": "software-developers",
+    "title": "Software Developers",
+    "x": 749.0999755859375,
+    "y": 908.9000244140625,
+    "wage": 133080,
+    "employment": 1654440,
+    "jobZone": 4,
+    "clusterId": 1
+  },
+  {
+    "soc": "29-1141.00",
+    "slug": "registered-nurses",
+    "title": "Registered Nurses",
+    "x": 535.8300170898438,
+    "y": 105.68000030517578,
+    "wage": 93600,
+    "employment": 3282010,
+    "jobZone": 4,
+    "clusterId": 14
+  }
+]

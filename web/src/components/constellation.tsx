@@ -9,7 +9,8 @@ import {
   type NodeMouseHandler,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useCallback, useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useMemo } from "react";
 import {
   buildNodes,
   pickAnchorSlugs,
@@ -18,60 +19,69 @@ import {
 } from "~/lib/build-nodes";
 import { FIT_VIEW_PADDING, ZOOM_MAX, ZOOM_MIN } from "~/lib/constants";
 import { useEscapeKey } from "~/lib/use-escape-key";
-import {
-  layoutBySlug,
-  neighboursBySlug,
-  occupations,
-  occupationsBySlug,
-} from "~/lib/mock-data";
+import type { Occupation } from "~/lib/types";
 import { JobBubble } from "./job-bubble";
-import { JobPanel } from "./job-panel";
 
 const nodeTypes = { jobBubble: JobBubble };
-
-// SAFE while the dataset is a module-load singleton. Once data becomes async,
-// move ANCHOR_SLUGS into useMemo([occupations]) inside ConstellationInner.
-const ANCHOR_SLUGS = pickAnchorSlugs(occupations);
 const EMPTY_EDGES: Edge[] = [];
 
-function ConstellationInner() {
-  const [rawSelectedSlug, setRawSelectedSlug] = useState<string | null>(null);
+/**
+ * Read selected slug from the URL: `/job/{slug}` → `{slug}`, else null.
+ */
+function readSelectedSlug(pathname: string | null): string | null {
+  if (!pathname) return null;
+  const match = /^\/job\/([^/]+)\/?$/.exec(pathname);
+  return match ? match[1]! : null;
+}
+
+export type ConstellationProps = {
+  atlas: Occupation[];
+  /** Slug → neighbour slugs, precomputed at build time. */
+  neighbourSlugsBySlug: Record<string, string[]>;
+};
+
+function ConstellationInner({ atlas, neighbourSlugsBySlug }: ConstellationProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const occupationsBySlug = useMemo(
+    () => Object.fromEntries(atlas.map((o) => [o.slug, o])),
+    [atlas],
+  );
+
+  const anchorSlugs = useMemo(() => pickAnchorSlugs(atlas), [atlas]);
+
+  const rawSelectedSlug = readSelectedSlug(pathname);
+  const selectedSlug = resolveSelectedSlug(rawSelectedSlug, occupationsBySlug);
 
   const selection = useMemo<Selection | null>(() => {
-    const slug = resolveSelectedSlug(rawSelectedSlug, occupationsBySlug);
-    if (!slug) return null;
-    const neighbourSlugs = new Set(
-      (neighboursBySlug[slug] ?? []).map((n) => n.slug),
-    );
-    return { slug, neighbourSlugs };
-  }, [rawSelectedSlug]);
+    if (!selectedSlug) return null;
+    const neighbours = neighbourSlugsBySlug[selectedSlug] ?? [];
+    return { slug: selectedSlug, neighbourSlugs: new Set(neighbours) };
+  }, [selectedSlug, neighbourSlugsBySlug]);
 
   const nodes = useMemo(
     () =>
       buildNodes({
-        occupations,
-        layoutBySlug,
+        occupations: atlas,
         selection,
-        anchorSlugs: ANCHOR_SLUGS,
+        anchorSlugs,
       }),
-    [selection],
+    [atlas, selection, anchorSlugs],
   );
 
-  const onNodeClick = useCallback<NodeMouseHandler>((_event, node) => {
-    setRawSelectedSlug(node.id);
-  }, []);
+  const onNodeClick = useCallback<NodeMouseHandler>(
+    (_event, node) => {
+      router.push(`/job/${node.id}`, { scroll: false });
+    },
+    [router],
+  );
 
-  const onPaneClick = useCallback(() => setRawSelectedSlug(null), []);
+  const goHome = useCallback(() => {
+    router.push("/", { scroll: false });
+  }, [router]);
 
-  const clearSelection = useCallback(() => setRawSelectedSlug(null), []);
-  useEscapeKey(clearSelection);
-
-  const selectedOccupation = selection
-    ? occupationsBySlug[selection.slug]
-    : undefined;
-  const selectedNeighbours = selection
-    ? neighboursBySlug[selection.slug] ?? []
-    : [];
+  useEscapeKey(goHome);
 
   return (
     <div
@@ -92,7 +102,7 @@ function ConstellationInner() {
         edges={EMPTY_EDGES}
         nodeTypes={nodeTypes}
         onNodeClick={onNodeClick}
-        onPaneClick={onPaneClick}
+        onPaneClick={goHome}
         nodesDraggable={false}
         nodesConnectable={false}
         elementsSelectable
@@ -138,21 +148,14 @@ function ConstellationInner() {
       >
         scroll to zoom · drag to pan · click a star
       </div>
-
-      <JobPanel
-        occupation={selectedOccupation}
-        neighbours={selectedNeighbours}
-        onSelect={(slug) => setRawSelectedSlug(slug)}
-        onClose={() => setRawSelectedSlug(null)}
-      />
     </div>
   );
 }
 
-export function Constellation() {
+export function Constellation(props: ConstellationProps) {
   return (
     <ReactFlowProvider>
-      <ConstellationInner />
+      <ConstellationInner {...props} />
     </ReactFlowProvider>
   );
 }

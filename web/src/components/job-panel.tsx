@@ -8,19 +8,20 @@ import {
   PANEL_TRANSITION_MS,
 } from "~/lib/constants";
 import {
-  formatInt,
+  formatIntOrUnknown,
   formatSimilarityPercent,
-  formatUsd,
+  formatUsdOrUnknown,
   formatWageDelta,
   wageDeltaTone,
 } from "~/lib/format";
-import type { Neighbour, Occupation } from "~/lib/types";
+import type { Details, Neighbour } from "~/lib/types";
 
-const JOB_ZONE_PREP: Record<1 | 2 | 3 | 4, string> = {
-  1: "little to no preparation",
+const JOB_ZONE_PREP: Record<1 | 2 | 3 | 4 | 5, string> = {
+  1: "little or no preparation",
   2: "some preparation",
-  3: "considerable preparation",
-  4: "extensive preparation",
+  3: "medium preparation",
+  4: "considerable preparation",
+  5: "extensive preparation",
 };
 
 const TONE_COLOR: Record<ReturnType<typeof wageDeltaTone>, string> = {
@@ -29,20 +30,23 @@ const TONE_COLOR: Record<ReturnType<typeof wageDeltaTone>, string> = {
   neutral: "var(--color-cream-50)",
 };
 
+// O*NET importance values run 1–5; SkillBar fills proportionally.
+const IMPORTANCE_MAX = 5;
+
 export type JobPanelProps = {
-  occupation: Occupation | undefined;
+  details: Details | undefined;
   neighbours: Neighbour[];
   onSelect: (slug: string) => void;
   onClose: () => void;
 };
 
 export function JobPanel({
-  occupation,
+  details,
   neighbours,
   onSelect,
   onClose,
 }: JobPanelProps) {
-  const open = !!occupation;
+  const open = !!details;
 
   return (
     <aside
@@ -68,10 +72,10 @@ export function JobPanel({
         }}
       />
 
-      {occupation && (
+      {details && (
         <PanelContent
-          key={occupation.slug}
-          occupation={occupation}
+          key={details.slug}
+          details={details}
           neighbours={neighbours}
           onSelect={onSelect}
           onClose={onClose}
@@ -82,12 +86,12 @@ export function JobPanel({
 }
 
 function PanelContent({
-  occupation,
+  details,
   neighbours,
   onSelect,
   onClose,
 }: {
-  occupation: Occupation;
+  details: Details;
   neighbours: Neighbour[];
   onSelect: (slug: string) => void;
   onClose: () => void;
@@ -100,7 +104,7 @@ function PanelContent({
             className="text-[10px] uppercase tracking-[0.36em]"
             style={{ color: "var(--color-cream-42)" }}
           >
-            {occupation.clusterLabel}
+            {details.clusterLabel}
           </div>
           <CloseButton onClose={onClose} />
         </div>
@@ -114,47 +118,54 @@ function PanelContent({
             fontFeatureSettings: '"ss01"',
           }}
         >
-          {occupation.title}
+          {details.title}
         </h1>
 
         <p
           className="mt-5 text-[14px] leading-[1.65]"
           style={{ color: "var(--color-cream-62)" }}
         >
-          {occupation.description}
+          {details.description}
         </p>
       </header>
 
       <div className="mt-7 grid grid-cols-3 gap-px px-8">
-        <Stat label="Median wage" value={formatUsd(occupation.wage)} />
-        <Stat label="Workforce" value={formatInt(occupation.employment)} />
-        <Stat label="Preparation" value={`Zone ${occupation.jobZone}`} />
+        <Stat label="Median wage" value={formatUsdOrUnknown(details.wage)} />
+        <Stat label="Workforce" value={formatIntOrUnknown(details.employment)} />
+        <Stat
+          label="Preparation"
+          value={details.jobZone === null ? "—" : `Zone ${details.jobZone}`}
+        />
       </div>
-      <div
-        className="mx-8 mt-2 text-[11px] leading-relaxed"
-        style={{ color: "var(--color-cream-42)" }}
-      >
-        {JOB_ZONE_PREP[occupation.jobZone]}
-      </div>
+      {details.jobZone !== null && (
+        <div
+          className="mx-8 mt-2 text-[11px] leading-relaxed"
+          style={{ color: "var(--color-cream-42)" }}
+        >
+          {JOB_ZONE_PREP[details.jobZone]}
+        </div>
+      )}
 
-      <Section title="Top skills" tone="primary">
-        <ul className="space-y-2.5">
-          {occupation.topSkills.slice(0, PANEL_TOP_SKILL_LIMIT).map((skill) => (
-            <li
-              key={skill.name}
-              className="flex items-center justify-between gap-3"
-            >
-              <span
-                className="text-[13.5px]"
-                style={{ color: "var(--color-cream-86)" }}
+      {details.topSkills.length > 0 && (
+        <Section title="Top skills" tone="primary">
+          <ul className="space-y-2.5">
+            {details.topSkills.slice(0, PANEL_TOP_SKILL_LIMIT).map((skill) => (
+              <li
+                key={skill.name}
+                className="flex items-center justify-between gap-3"
               >
-                {skill.name}
-              </span>
-              <SkillBar value={skill.importance} />
-            </li>
-          ))}
-        </ul>
-      </Section>
+                <span
+                  className="text-[13.5px]"
+                  style={{ color: "var(--color-cream-86)" }}
+                >
+                  {skill.name}
+                </span>
+                <SkillBar value={skill.importance / IMPORTANCE_MAX} />
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
 
       {neighbours.length > 0 && (
         <Section title="Similar careers" tone="secondary">

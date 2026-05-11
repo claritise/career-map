@@ -1,9 +1,17 @@
 import { Constellation } from "~/components/constellation";
+import { getAtlas, getNeighbourSlugsBySlug } from "~/lib/data";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [atlas, neighbourSlugsBySlug] = await Promise.all([
+    getAtlas(),
+    getNeighbourSlugsBySlug(),
+  ]);
   return (
     <main className="h-screen w-screen overflow-hidden">
-      <Constellation />
+      <Constellation
+        atlas={atlas}
+        neighbourSlugsBySlug={neighbourSlugsBySlug}
+      />
     </main>
   );
 }

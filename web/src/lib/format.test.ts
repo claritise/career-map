@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  UNKNOWN,
   formatInt,
+  formatIntOrUnknown,
   formatSimilarityPercent,
   formatUsd,
+  formatUsdOrUnknown,
   formatWageDelta,
   wageDeltaTone,
 } from "./format";
@@ -31,6 +34,18 @@ describe("formatInt", () => {
   });
 });
 
+describe("null-tolerant formatters", () => {
+  it("formatUsdOrUnknown renders UNKNOWN for null and dollars for numbers", () => {
+    expect(formatUsdOrUnknown(null)).toBe(UNKNOWN);
+    expect(formatUsdOrUnknown(75000)).toBe("$75,000");
+  });
+
+  it("formatIntOrUnknown renders UNKNOWN for null and integers for numbers", () => {
+    expect(formatIntOrUnknown(null)).toBe(UNKNOWN);
+    expect(formatIntOrUnknown(12345)).toBe("12,345");
+  });
+});
+
 describe("formatWageDelta", () => {
   it("prefixes a `+` for positive deltas", () => {
     expect(formatWageDelta(15000)).toBe("+$15,000");
@@ -42,6 +57,10 @@ describe("formatWageDelta", () => {
 
   it("keeps Intl's `-` for negative deltas (no extra prefix)", () => {
     expect(formatWageDelta(-8000)).toBe("-$8,000");
+  });
+
+  it("renders UNKNOWN for null delta (origin or neighbour wage missing)", () => {
+    expect(formatWageDelta(null)).toBe(UNKNOWN);
   });
 });
 
@@ -83,6 +102,10 @@ describe("wageDeltaTone", () => {
     expect(wageDeltaTone(-0)).toBe("neutral");
   });
 
+  it("returns 'neutral' for null delta", () => {
+    expect(wageDeltaTone(null)).toBe("neutral");
+  });
+
   it("returns 'neutral' for NaN (neither >0 nor <0)", () => {
     expect(wageDeltaTone(NaN)).toBe("neutral");
   });
@@ -99,8 +122,6 @@ describe("formatWageDelta — sign agreement with wageDeltaTone", () => {
 });
 
 describe("format helpers — degenerate inputs", () => {
-  // These are not expected runtime values, but documenting current behavior
-  // so any future "guard at the boundary" decision is intentional rather than drift.
   it("formatUsd(NaN) returns '$NaN'", () => {
     expect(formatUsd(NaN)).toBe("$NaN");
   });

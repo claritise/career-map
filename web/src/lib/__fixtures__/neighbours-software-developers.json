@@ -1,0 +1,114 @@
+[
+  {
+    "soc": "15-1243.01",
+    "slug": "data-warehousing-specialists",
+    "title": "Data Warehousing Specialists",
+    "similarity": 0.8582,
+    "sharedSkills": [
+      "Category Flexibility",
+      "Computers and Electronics",
+      "Critical Thinking",
+      "Deductive Reasoning",
+      "Inductive Reasoning",
+      "Information Ordering",
+      "Near Vision",
+      "Oral Comprehension",
+      "Oral Expression",
+      "Programming",
+      "Reading Comprehension",
+      "Systems Analysis",
+      "Written Comprehension",
+      "Written Expression"
+    ],
+    "gapSkills": [
+      "Active Listening",
+      "Complex Problem Solving",
+      "Speech Recognition"
+    ],
+    "surplusSkills": [
+      "Active Learning",
+      "Customer and Personal Service",
+      "Judgment and Decision Making",
+      "Mathematics",
+      "Problem Sensitivity"
+    ],
+    "wage": 135980,
+    "wageDelta": 2900
+  },
+  {
+    "soc": "15-1243.00",
+    "slug": "database-architects",
+    "title": "Database Architects",
+    "similarity": 0.8311,
+    "sharedSkills": [
+      "Computers and Electronics",
+      "Critical Thinking",
+      "Deductive Reasoning",
+      "Inductive Reasoning",
+      "Information Ordering",
+      "Judgment and Decision Making",
+      "Mathematics",
+      "Near Vision",
+      "Oral Comprehension",
+      "Oral Expression",
+      "Problem Sensitivity",
+      "Reading Comprehension",
+      "Systems Analysis",
+      "Written Comprehension"
+    ],
+    "gapSkills": [
+      "Active Listening",
+      "Complex Problem Solving",
+      "Design",
+      "Engineering and Technology",
+      "Speaking",
+      "Speech Clarity"
+    ],
+    "surplusSkills": [
+      "Active Learning",
+      "Category Flexibility",
+      "Customer and Personal Service",
+      "Programming",
+      "Written Expression"
+    ],
+    "wage": 135980,
+    "wageDelta": 2900
+  },
+  {
+    "soc": "15-1254.00",
+    "slug": "web-developers",
+    "title": "Web Developers",
+    "similarity": 0.8139,
+    "sharedSkills": [
+      "Active Learning",
+      "Computers and Electronics",
+      "Critical Thinking",
+      "Deductive Reasoning",
+      "Inductive Reasoning",
+      "Information Ordering",
+      "Near Vision",
+      "Oral Comprehension",
+      "Problem Sensitivity",
+      "Programming",
+      "Reading Comprehension",
+      "Written Comprehension"
+    ],
+    "gapSkills": [
+      "Active Listening",
+      "Complex Problem Solving",
+      "English Language",
+      "Operations Analysis"
+    ],
+    "surplusSkills": [
+      "Category Flexibility",
+      "Customer and Personal Service",
+      "Judgment and Decision Making",
+      "Mathematics",
+      "Oral Expression",
+      "Systems Analysis",
+      "Written Expression"
+    ],
+    "wage": 90930,
+    "wageDelta": -42150
+  }
+]

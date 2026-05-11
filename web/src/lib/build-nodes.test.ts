@@ -5,25 +5,21 @@ import {
   pickAnchorSlugs,
   resolveSelectedSlug,
 } from "./build-nodes";
-import type { Occupation, OccupationLayout } from "./types";
+import type { Occupation } from "./types";
 
 function occ(slug: string, overrides: Partial<Occupation> = {}): Occupation {
   return {
+    soc: `00-${slug}.00`,
     slug,
     title: slug,
+    x: 100,
+    y: 100,
     wage: 60000,
     employment: 10000,
     jobZone: 2,
     clusterId: 0,
-    clusterLabel: "Test",
-    topSkills: [],
-    description: "",
     ...overrides,
   };
-}
-
-function layout(slug: string, x = 100, y = 100): OccupationLayout {
-  return { slug, x, y };
 }
 
 describe("pickAnchorSlugs", () => {
@@ -72,16 +68,17 @@ describe("resolveSelectedSlug", () => {
 });
 
 describe("buildNodes — selection / dim invariants", () => {
-  const occs = [occ("a"), occ("b"), occ("c"), occ("d")];
-  const layouts = Object.fromEntries(
-    occs.map((o, i) => [o.slug, layout(o.slug, i * 50, i * 50)]),
-  );
+  const occs = [
+    occ("a", { x: 0, y: 0 }),
+    occ("b", { x: 50, y: 50 }),
+    occ("c", { x: 100, y: 100 }),
+    occ("d", { x: 150, y: 150 }),
+  ];
   const anchors = new Set<string>();
 
   it("with no selection, no node is dimmed and none are selected", () => {
     const nodes = buildNodes({
       occupations: occs,
-      layoutBySlug: layouts,
       selection: null,
       anchorSlugs: anchors,
     });
@@ -94,7 +91,6 @@ describe("buildNodes — selection / dim invariants", () => {
   it("selected node has selected=true and dimmed=false", () => {
     const nodes = buildNodes({
       occupations: occs,
-      layoutBySlug: layouts,
       selection: { slug: "b", neighbourSlugs: new Set(["c"]) },
       anchorSlugs: anchors,
     });
@@ -106,7 +102,6 @@ describe("buildNodes — selection / dim invariants", () => {
   it("neighbours of the selection are not dimmed", () => {
     const nodes = buildNodes({
       occupations: occs,
-      layoutBySlug: layouts,
       selection: { slug: "b", neighbourSlugs: new Set(["c"]) },
       anchorSlugs: anchors,
     });
@@ -117,7 +112,6 @@ describe("buildNodes — selection / dim invariants", () => {
   it("non-neighbours are dimmed", () => {
     const nodes = buildNodes({
       occupations: occs,
-      layoutBySlug: layouts,
       selection: { slug: "b", neighbourSlugs: new Set(["c"]) },
       anchorSlugs: anchors,
     });
@@ -128,7 +122,6 @@ describe("buildNodes — selection / dim invariants", () => {
   it("anchor slugs flow to showAnchorLabel", () => {
     const nodes = buildNodes({
       occupations: occs,
-      layoutBySlug: layouts,
       selection: null,
       anchorSlugs: new Set(["a", "d"]),
     });
@@ -137,25 +130,22 @@ describe("buildNodes — selection / dim invariants", () => {
     expect(nodes.find((n) => n.id === "d")?.data.showAnchorLabel).toBe(true);
   });
 
-  it("missing layout falls back to (0, 0) without throwing", () => {
-    const partialLayouts = { a: layout("a", 50, 50) };
+  it("position is read directly from the occupation", () => {
     const nodes = buildNodes({
       occupations: occs,
-      layoutBySlug: partialLayouts,
       selection: null,
       anchorSlugs: anchors,
     });
-    expect(nodes.find((n) => n.id === "b")?.position).toEqual({ x: 0, y: 0 });
-    expect(nodes.find((n) => n.id === "a")?.position).toEqual({
-      x: 50,
-      y: 50,
+    expect(nodes.find((n) => n.id === "a")?.position).toEqual({ x: 0, y: 0 });
+    expect(nodes.find((n) => n.id === "c")?.position).toEqual({
+      x: 100,
+      y: 100,
     });
   });
 
   it("every node uses BUBBLE_RADIUS and BUBBLE_BRIGHTNESS (uniform visuals)", () => {
     const nodes = buildNodes({
       occupations: occs,
-      layoutBySlug: layouts,
       selection: null,
       anchorSlugs: anchors,
     });
@@ -168,7 +158,6 @@ describe("buildNodes — selection / dim invariants", () => {
   it("selection with no neighbours dims everything else (production code routes through resolveSelectedSlug first)", () => {
     const nodes = buildNodes({
       occupations: occs,
-      layoutBySlug: layouts,
       selection: { slug: "b", neighbourSlugs: new Set() },
       anchorSlugs: anchors,
     });

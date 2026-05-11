@@ -1,38 +1,53 @@
+import type { Node } from "@xyflow/react";
+
+/** Atlas-minimal occupation entry — one row in atlas.json. */
 export type Occupation = {
+  soc: string;
   slug: string;
   title: string;
-  wage: number;
-  employment: number;
-  jobZone: 1 | 2 | 3 | 4;
-  clusterId: number;
-  clusterLabel: string;
-  topSkills: { name: string; importance: number }[];
-  description: string;
-};
-
-export type OccupationLayout = {
-  slug: string;
   x: number;
   y: number;
+  wage: number | null;
+  employment: number | null;
+  jobZone: 1 | 2 | 3 | 4 | 5 | null;
+  clusterId: number;
 };
 
+/** Verbose per-occupation data — one file per occupation in details/. */
+export type Details = {
+  soc: string;
+  slug: string;
+  title: string;
+  description: string;
+  topSkills: { name: string; importance: number }[];
+  wage: number | null;
+  employment: number | null;
+  jobZone: 1 | 2 | 3 | 4 | 5 | null;
+  clusterId: number;
+  clusterLabel: string;
+};
+
+/** One neighbour entry — array members in neighbours/{slug}.json. */
 export type Neighbour = {
+  soc: string;
   slug: string;
   title: string;
   similarity: number;
   sharedSkills: string[];
   gapSkills: string[];
-  wage: number;
-  wageDelta: number;
+  surplusSkills: string[];
+  wage: number | null;
+  wageDelta: number | null;
 };
 
-import type { Node } from "@xyflow/react";
+/** Cluster id → human-readable label. */
+export type ClusterLabels = Record<string, string>;
 
-export type Dataset = {
-  occupations: Occupation[];
-  layoutBySlug: Record<string, OccupationLayout>;
-  occupationsBySlug: Record<string, Occupation>;
-  neighboursBySlug: Record<string, Neighbour[]>;
+/** Layout-only view of an occupation, useful when only x/y are needed. */
+export type OccupationLayout = {
+  slug: string;
+  x: number;
+  y: number;
 };
 
 export type JobBubbleData = {

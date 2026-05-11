@@ -2,6 +2,7 @@ import "~/styles/globals.css";
 
 import { type Metadata } from "next";
 import { Geist, Fraunces } from "next/font/google";
+import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "Career Map",
@@ -23,7 +24,8 @@ const fraunces = Fraunces({
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+  panel,
+}: Readonly<{ children: ReactNode; panel: ReactNode }>) {
   return (
     <html lang="en" className={`${geist.variable} ${fraunces.variable}`}>
       <body
@@ -34,6 +36,7 @@ export default function RootLayout({
         }}
       >
         {children}
+        {panel}
       </body>
     </html>
   );
