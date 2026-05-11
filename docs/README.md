@@ -10,4 +10,6 @@ Read in order if you're new:
 
 3. **[02-full-system-context.md](./02-full-system-context.md)** — the full v1 architecture brief. Data + pipeline + frontend routing + rendering + fetching + deploy, end-to-end. This is the document you hand a new contributor (human or AI) who needs to understand the whole system, not one slice.
 
+4. **[03-build-plan.md](./03-build-plan.md)** — the *plan*, not the spec. Phase sequence (0–5), estimates, what blocks what, decisions deferred until later. Start here if you're picking up work.
+
 If anything in these docs disagrees with what the code currently does, the docs reflect the *target* state for v1. The code currently reflects v0 (mock data, single-page, no per-job routes).
